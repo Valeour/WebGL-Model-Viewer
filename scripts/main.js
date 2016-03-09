@@ -253,7 +253,7 @@ var main=function() {
     ctx.fillText("View: : "+VIEWMATRIX, 20, 120);
     ctx.fillText("Move: : "+MOVEMATRIX, 20, 140);
     ctx.fillText("Scale: : "+SCALEMATRIX, 20, 160);
-    
+    ctx.fillText("NOT CHANCE'S WEBGL APP", 20, 180);
    
     window.requestAnimationFrame(animate);
   };
