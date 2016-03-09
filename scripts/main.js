@@ -260,7 +260,7 @@ var main=function() {
 
     ctx.fillText("FPS: "+FPS, 20, 180);
 
-    ctx.fillText("NOT CHANCE'S WEBGL APP", 20, 180);
+    
 
    
     window.requestAnimationFrame(animate);
