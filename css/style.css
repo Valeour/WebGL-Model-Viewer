@@ -1,0 +1,10 @@
+.container {
+    position: relative;
+}
+#2dCanvas {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    opacity:0.5;
+    z-index: 10;
+}

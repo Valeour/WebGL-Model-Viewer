@@ -1,8 +1,16 @@
-
 var main=function() {
-  var CANVAS=document.getElementById("your_canvas");
+  var CANVAS=document.getElementById("canvas");
   CANVAS.width=window.innerWidth;
   CANVAS.height=window.innerHeight;
+  
+  //
+  var canvas2d=document.getElementById("2dCanvas");
+  //canvas2d.width=window.innerWidth;
+  canvas2d.height=window.innerHeight;
+  
+  var ctx = canvas2d.getContext("2d");
+  
+  
   
   // Canvas text
   // TODO:
@@ -12,11 +20,11 @@ var main=function() {
   var scrollPosition=0.1;
   var oldScrollPosition;
   var mouseDelta;
-  var AMORTIZATION=0.95;
+  var AMORTIZATION=0; //TODO: Fix weird bug with text showing massive numbers when set to anything but 0
   var drag=false;
   var old_x, old_y;
   var dX=0, dY=0;
-  dX += 0.5;
+ 
   
   var mouseDown=function(e) {
     drag=true;
@@ -196,8 +204,7 @@ var main=function() {
   var time_old=0;
   var animate=function(time) {
     var dt=time-time_old;
-   
-    dX += 0.0005;
+  
     if (!drag) {
       dX*=AMORTIZATION, dY*=AMORTIZATION;
       THETA+=dX, PHI+=dY;
@@ -239,6 +246,21 @@ var main=function() {
     }
     
     GL.flush();
+    
+     //Write 2d TODO: Move all 2d drawing to its own handler class
+    ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
+    ctx.fillStyle = "white";
+    ctx.font = "8pt Arial";
+    ctx.fillText("dX: "+dX, 20, 20);
+    ctx.fillText("dY: "+dY, 20, 40);
+    ctx.fillText("ZoomValue: "+scrollPosition, 20, 60);
+    ctx.fillText("WireframeMode: "+wireframeOn, 20, 80);
+    ctx.fillText("Projection: : "+LIBS.get_projection(), 20, 100);
+    ctx.fillText("View: : "+VIEWMATRIX, 20, 120);
+    ctx.fillText("Move: : "+MOVEMATRIX, 20, 140);
+    ctx.fillText("Scale: : "+SCALEMATRIX, 20, 160);
+    
+   
     window.requestAnimationFrame(animate);
   };
   animate(0);
