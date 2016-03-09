@@ -3,18 +3,13 @@ var main=function() {
   CANVAS.width=window.innerWidth;
   CANVAS.height=window.innerHeight;
   
-  //
   var canvas2d=document.getElementById("2dCanvas");
   //canvas2d.width=window.innerWidth;
   canvas2d.height=window.innerHeight;
-  
+
   var ctx = canvas2d.getContext("2d");
-  
-  
-  
   // Canvas text
   // TODO:
-
   // Wireframe toogle
   var wireframeOn = false;
   var scrollPosition=0.1;
@@ -25,7 +20,6 @@ var main=function() {
   var old_x, old_y;
   var dX=0, dY=0;
  
-  
   var mouseDown=function(e) {
     drag=true;
     old_x=e.pageX, old_y=e.pageY;
@@ -53,7 +47,8 @@ var main=function() {
   CANVAS.addEventListener("mouseout", mouseUp, false);
   CANVAS.addEventListener("mousemove", mouseMove, false);
   window.addEventListener("keypress", function(e){
-      if(e.keyCode == 32){
+	console.log(e.charCode);
+      if(e.keyCode == 32 || e.charCode == 32){
            wireframeOn = !wireframeOn;
            e.preventDefault();
       }
@@ -177,7 +172,6 @@ var main=function() {
 
     20,21,22,
     20,22,23
-
   ];
   var CUBE_FACES= GL.createBuffer ();
   GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, CUBE_FACES);
