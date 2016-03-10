@@ -8,12 +8,13 @@ var main=function() {
   canvas2d.height=window.innerHeight;
 
   var ctx = canvas2d.getContext("2d");
-  // Canvas text
-  // TODO:
+ 
   // Wireframe toogle
   var wireframeOn = false;
-  var scrollPosition=0;
-  var oldScrollPosition;
+  
+  var scrollPosition=0;//offset
+  var oldScrollPosition=0;
+  var tempval;
   var mouseDelta;
   var AMORTIZATION=0; //TODO: Fix weird bug with text showing massive numbers when set to anything but 0
   var drag=false;
@@ -54,22 +55,37 @@ var main=function() {
       }
   }, false);
   
-  canvas2d.addEventListener("mousewheel", function(e){
+  window.addEventListener("mousewheel", function(e){
+      //console.log(e);
+      var mouseDelta = 0;
+        if (e.wheelDelta) {
+            delta = e.wheelDelta/120;
+           
+        } else if (e.detail) { 
+            delta = -e.detail/3;
+        }
+        
+        if (delta)
+            handleScroll(delta);
+            
+        if (e.preventDefault)
+            e.preventDefault();
+        e.returnValue = false;
+    }, false);
     
-      mouseDelta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-      console.log("mousedelta: "+mouseDelta);
-      if(mouseDelta==1){
-          scrollPosition++;
-          if(scrollPosition>30){
-              scrollPosition=30;
-          }
-      }else{
-          scrollPosition--;
-          if(scrollPosition < -18){
-              scrollPosition = -18;
-          }
-      }
-  }, false);
+    function handleScroll(mouseDelta){
+        if (mouseDelta < 0){
+              scrollPosition=scrollPosition-0.025;
+              if(scrollPosition < -18){
+                  scrollPosition = -18;
+              }
+        }else{
+             scrollPosition=scrollPosition+0.025;
+             if(scrollPosition > 30){
+                 scrollPosition = 30;
+             }
+        }     
+    }
   
   /* Get WebGL context */
   var GL;
@@ -114,7 +130,7 @@ var main=function() {
 
   GL.enableVertexAttribArray(_color);
   GL.enableVertexAttribArray(_position);
-
+  
   GL.useProgram(SHADER_PROGRAM);
 
   /*========================= THE CUBE ========================= */
@@ -149,7 +165,6 @@ var main=function() {
     -1, 1, 1,     0,1,0,
     1, 1, 1,     0,1,0,
     1, 1,-1,     0,1,0
-
   ];
 
   var CUBE_VERTEX= GL.createBuffer ();
@@ -185,14 +200,12 @@ var main=function() {
     GL.STATIC_DRAW);
 
   /* Set matrices */
-
   var PROJMATRIX=LIBS.get_projection(40, CANVAS.width/CANVAS.height, 1, 100);
   var MOVEMATRIX=LIBS.get_I4();
   var VIEWMATRIX=LIBS.get_I4();
   var SCALEMATRIX=LIBS.get_I4();
-  LIBS.translateZ(VIEWMATRIX, -10);
-  var THETA=0,
-      PHI=0;
+  LIBS.translateZ(VIEWMATRIX, -10); // TODO: Make more dynamic
+  var THETA=0, PHI=0;
 
   /*---------------Drawing starts here---------------*/
   GL.enable(GL.DEPTH_TEST);
@@ -201,6 +214,7 @@ var main=function() {
   GL.clearDepth(1.0);
 
   var time_old=0;
+  // Main loop
   var animate=function(time) {
     var dt=time-time_old;
   
@@ -211,16 +225,17 @@ var main=function() {
     LIBS.set_I4(MOVEMATRIX);
     LIBS.rotateY(MOVEMATRIX, THETA);
     LIBS.rotateX(MOVEMATRIX, PHI);
+    
     // Probably a better way of doing this
     if(scrollPosition != oldScrollPosition){
+           tempval=Math.sign(scrollPosition-oldScrollPosition);
            oldScrollPosition=scrollPosition;
-           LIBS.scale(SCALEMATRIX, Math.abs(scrollPosition/100), mouseDelta);
-       }
-       
-       
-    
+           LIBS.scale(SCALEMATRIX, Math.abs(scrollPosition/100), tempval);
+    }
+   
     time_old=time;
 
+    
     GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
     GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
 
@@ -257,12 +272,9 @@ var main=function() {
     ctx.fillText("View: : "+VIEWMATRIX, 20, 140);
     //ctx.fillText("Move: : "+MOVEMATRIX, 20, 140);
     ctx.fillText("Scale: : "+SCALEMATRIX, 20, 160);
-
     ctx.fillText("FPS: "+FPS, 20, 180);
+    ctx.fillText("ScrollDelta: "+tempval, 20, 200);
 
-    
-
-   
     window.requestAnimationFrame(animate);
   };
   animate(0);
