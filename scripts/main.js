@@ -4,7 +4,7 @@ var main=function() {
   CANVAS.height=window.innerHeight;
   
   var canvas2d=document.getElementById("2dCanvas");
-  //canvas2d.width=window.innerWidth;
+  canvas2d.width=window.innerWidth;
   canvas2d.height=window.innerHeight;
 
   var ctx = canvas2d.getContext("2d");
@@ -12,7 +12,7 @@ var main=function() {
   // TODO:
   // Wireframe toogle
   var wireframeOn = false;
-  var scrollPosition=0.1;
+  var scrollPosition=0;
   var oldScrollPosition;
   var mouseDelta;
   var AMORTIZATION=0; //TODO: Fix weird bug with text showing massive numbers when set to anything but 0
@@ -42,11 +42,11 @@ var main=function() {
   };
   
   // Canvas listeners
-  CANVAS.addEventListener("mousedown", mouseDown, false);
-  CANVAS.addEventListener("mouseup", mouseUp, false);
-  CANVAS.addEventListener("mouseout", mouseUp, false);
-  CANVAS.addEventListener("mousemove", mouseMove, false);
-  window.addEventListener("keypress", function(e){
+  canvas2d.addEventListener("mousedown", mouseDown, false);
+  canvas2d.addEventListener("mouseup", mouseUp, false);
+  canvas2d.addEventListener("mouseout", mouseUp, false);
+  canvas2d.addEventListener("mousemove", mouseMove, false);
+  window.addEventListener("keyup", function(e){
 	console.log(e.charCode);
       if(e.keyCode == 32 || e.charCode == 32){
            wireframeOn = !wireframeOn;
@@ -54,15 +54,20 @@ var main=function() {
       }
   }, false);
   
-  CANVAS.addEventListener("mousewheel", function(e){
+  canvas2d.addEventListener("mousewheel", function(e){
+    
       mouseDelta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+      console.log("mousedelta: "+mouseDelta);
       if(mouseDelta==1){
           scrollPosition++;
-          console.log("Mouse scroll in: "+scrollPosition);
-          
+          if(scrollPosition>30){
+              scrollPosition=30;
+          }
       }else{
           scrollPosition--;
-          console.log("Mouse scroll out: "+scrollPosition);  
+          if(scrollPosition < -18){
+              scrollPosition = -18;
+          }
       }
   }, false);
   
@@ -185,7 +190,7 @@ var main=function() {
   var MOVEMATRIX=LIBS.get_I4();
   var VIEWMATRIX=LIBS.get_I4();
   var SCALEMATRIX=LIBS.get_I4();
-  LIBS.translateZ(VIEWMATRIX, -20);
+  LIBS.translateZ(VIEWMATRIX, -10);
   var THETA=0,
       PHI=0;
 
@@ -208,15 +213,12 @@ var main=function() {
     LIBS.rotateX(MOVEMATRIX, PHI);
     // Probably a better way of doing this
     if(scrollPosition != oldScrollPosition){
-       if(mouseDelta==1){
-           // TODO: odd issue with negative value going the wrong way, probably need abs
-           LIBS.scale(SCALEMATRIX, scrollPosition/100);
-       }else{
-           LIBS.scale(SCALEMATRIX, -scrollPosition/100);
+           oldScrollPosition=scrollPosition;
+           LIBS.scale(SCALEMATRIX, Math.abs(scrollPosition/100), mouseDelta);
        }
        
-       oldScrollPosition=scrollPosition;
-    }
+       
+    
     time_old=time;
 
     GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
@@ -241,19 +243,25 @@ var main=function() {
     
     GL.flush();
     
+    var FPS =fps.getFPS()
      //Write 2d TODO: Move all 2d drawing to its own handler class
     ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
     ctx.fillStyle = "white";
-    ctx.font = "8pt Arial";
+    ctx.font = "12pt Arial";
     ctx.fillText("dX: "+dX, 20, 20);
     ctx.fillText("dY: "+dY, 20, 40);
     ctx.fillText("ZoomValue: "+scrollPosition, 20, 60);
-    ctx.fillText("WireframeMode: "+wireframeOn, 20, 80);
-    ctx.fillText("Projection: : "+LIBS.get_projection(), 20, 100);
-    ctx.fillText("View: : "+VIEWMATRIX, 20, 120);
-    ctx.fillText("Move: : "+MOVEMATRIX, 20, 140);
+    ctx.fillText("ScrollDirection: "+mouseDelta, 20, 80);
+    ctx.fillText("WireframeMode: "+wireframeOn, 20, 100);
+    ctx.fillText("Projection: : "+LIBS.get_projection(), 20, 120);
+    ctx.fillText("View: : "+VIEWMATRIX, 20, 140);
+    //ctx.fillText("Move: : "+MOVEMATRIX, 20, 140);
     ctx.fillText("Scale: : "+SCALEMATRIX, 20, 160);
-    ctx.fillText("NOT CHANCE'S WEBGL APP", 20, 180);
+
+    ctx.fillText("FPS: "+FPS, 20, 180);
+
+    
+
    
     window.requestAnimationFrame(animate);
   };

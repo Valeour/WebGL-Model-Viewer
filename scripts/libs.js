@@ -58,8 +58,9 @@ var LIBS={
   },
 
   rotateZ: function(m, angle) {
-    var c=Math.cos(angle);
-    var s=Math.sin(angle);
+    var c=Math.Round(Math.cos(angle)*10)/10;
+    console.log(c);
+    var s=Math.Round(Math.sin(angle)*10)/10;
     var mv0=m[0], mv4=m[4], mv8=m[8];
     m[0]=c*m[0]-s*m[1];
     m[4]=c*m[4]-s*m[5];
@@ -70,13 +71,38 @@ var LIBS={
     m[9]=c*m[9]+s*mv8;
   },
   
-  scale: function(m, t){
-    m[0]+=t;
-    m[5]+=t;
-    m[10]+=t;  
+  scale: function(m, t, delta){
+    console.log("Matrix: "+m+"\nInput: "+t+"\nDelta: "+delta);
+    if(delta == -1){
+        console.log("neg t");
+        m[0]-=  t;
+        m[5]-=  t;
+        m[10]-= t;
+    }else{
+        console.log("pos t");
+        m[0]+= t;
+        m[5]+= t;
+        m[10]+= t;
+    }
+    console.log("NewMatrix: "+m+"\n----------");
   },
 
   translateZ: function(m, t){
     m[14]+=t;
   }
+};
+var fps = {
+    startTime: 0,
+    frameNumber: 0,
+    getFPS: function() {
+        this.frameNumber++;
+        var d = new Date().getTime(),
+            currentTime = (d - this.startTime) / 1000,
+            result = Math.floor((this.frameNumber / currentTime));
+        if (currentTime > 1) {
+            this.startTime = new Date().getTime();
+            this.frameNumber = 0;
+        }
+        return result;
+    }
 };
